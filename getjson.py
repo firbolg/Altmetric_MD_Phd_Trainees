@@ -4,7 +4,8 @@ from urllib.error import HTTPError
 import json 
 import csv
 import pandas as pd
-import time
+import os 
+from functools import reduce 
 
 # Read xlsx file
 df = pd.read_excel('m_test.xlsx')
@@ -12,7 +13,6 @@ df = pd.read_excel('m_test.xlsx')
 
 # Enumerate through the DOIs, getting all open Altmetric data for each article as json objects, 
 # writing each json object to a file, and incrementing the filename by 1 each loop.
-
 e = 0
 
 def get_json(doi):
@@ -28,8 +28,29 @@ def get_json(doi):
         else:
             raise 
 
-l = ['10.3390/ijms141020037','10.1063/1.4819200','10.1007/s11682-013-9259-7']
 
-for i in l:
+doi_list = df['DOI'].tolist()
+
+for i in doi_list:
     get_json(i)
     e+=1
+
+path = r"C:\Users\Levi\source\repos\Altmetric_MD_PhD_Trainees\json_data"
+
+os.chdir(path)
+
+dflist = []
+
+for file in os.listdir():
+    file_path = f"{path}\{file}"
+    with open(file_path, "r") as f:
+        data = json.loads(f.read())
+        df_flat = pd.json_normalize(data)
+        dflist.append(df_flat)
+
+# TODO merge list of dataframes with NaN values retained
+#df = reduce(lambda x, y: pd.merge(x, y, on = 'doi'), dflist)    
+# https://stackoverflow.com/questions/38089010/merge-a-list-of-pandas-dataframes/38089112    
+# TODO match normalized json dataframe rows to dataframe of original csv by identifier and merge
+# TODO output final xlsx with all info 
+
