@@ -1,20 +1,35 @@
-#test api fetching json object, test pyaltmetric creating pyalmetric objects
-
-import urllib
+#import urllib
 import urllib.request
+from urllib.error import HTTPError
 import json 
+import csv
+import pandas as pd
+import time
 
-from pyaltmetric import Altmetric, Citation
+# Read xlsx file
+df = pd.read_excel('m_test.xlsx')
 
-url = ('https://api.altmetric.com/v1/doi/10.1101/2020.10.07.20208231')
 
-json_obj = urllib.request.urlopen(url)
+# Enumerate through the DOIs, getting all open Altmetric data for each article as json objects, 
+# writing each json object to a file, and incrementing the filename by 1 each loop.
 
-data = json.load(json_obj)
+e = 0
 
-a = Altmetric ()
+def get_json(doi):
+    try:
+        url = ('https://api.altmetric.com/v1/doi/' + doi)
+        json_obj = urllib.request.urlopen(url)
+        data = json.load(json_obj)
+        with open('{0}_altmetric_data.json'.format(e), 'w') as jsonfile:
+            json.dump(data, jsonfile)
+    except HTTPError as err:
+        if err.code == 404:
+            pass
+        else:
+            raise 
 
-c = Citation(a.doi('10.1101/2020.02.09.20021261'))
+l = ['10.3390/ijms141020037','10.1063/1.4819200','10.1007/s11682-013-9259-7']
 
-print (vars(c))
-
+for i in l:
+    get_json(i)
+    e+=1
