@@ -1,12 +1,11 @@
 import urllib.request
 from urllib.error import HTTPError
 import json 
-import csv
 import pandas as pd
 
 
 # Read xlsx file into dataframe
-df = pd.read_excel('m_test.xlsx')
+df = pd.read_excel('Tracking Scholarly work_T32.xlsx')
 
 
 # Enumerate through the DOIs, getting all open Altmetric data for each article as json objects, 
@@ -30,5 +29,13 @@ def get_json(doi):
 doi_list = df['DOI'].tolist()
 
 for i in doi_list:
-    get_json(i)
-    e+=1
+    if type(i) == str:    
+        i.startswith('1')
+        get_json(i)
+        e+=1
+    else:
+        pass
+    
+
+
+
